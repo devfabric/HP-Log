@@ -1,0 +1,13 @@
+PrintLog = false
+Loglevel = "info"
+Filename = "logs/HP-Log.log"
+MaxSize = 1024
+MaxAge = 7
+MaxBackups = 5
+LocalTime = true
+Compress = false
+
+[ModLevel]
+  main = "info"
+  model1 = "error"
+  model2 = "error"
