@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -67,7 +67,6 @@ func InitLogger(module string) (*HPLog, *zap.SugaredLogger) {
 	hpLog.ZapWrite = zapcore.AddSync(&hook)
 	hpLog.Encoder = zapcore.NewConsoleEncoder(encoderConfig)
 	if logLevel, ok := config.HPLogConfig.ModLevel[module]; ok {
-		fmt.Println(logLevel)
 		level = GetLogLevel(logLevel)
 	} else {
 		switch config.HPLogConfig.Loglevel {
@@ -82,11 +81,21 @@ func InitLogger(module string) (*HPLog, *zap.SugaredLogger) {
 		}
 	}
 
-	zapCore := zapcore.NewCore(
-		hpLog.Encoder,
-		hpLog.ZapWrite,
-		level,
-	)
+	var zapCore zapcore.Core
+	if config.HPLogConfig.PrintLog {
+		zapCore = zapcore.NewCore(
+			hpLog.Encoder, // 编码器配置
+			// hpLog.ZapWrite,
+			zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), hpLog.ZapWrite), // 打印到控制台和文件
+			level,
+		)
+	} else {
+		zapCore = zapcore.NewCore(
+			hpLog.Encoder, // 编码器配置
+			hpLog.ZapWrite,
+			level,
+		)
+	}
 
 	hpLog.LogMap[module] = zap.New(zapCore)
 	hpLog.LogMap[module].Info("InitLogger Init Success")
@@ -119,11 +128,27 @@ func (h *HPLog) GetLogger(module string) *zap.SugaredLogger {
 		}
 	}
 
-	zapCore := zapcore.NewCore(
-		h.Encoder,
-		h.ZapWrite,
-		level,
-	)
+	var zapCore zapcore.Core
+	if config.HPLogConfig.PrintLog {
+		zapCore = zapcore.NewCore(
+			h.Encoder, // 编码器配置
+			// hpLog.ZapWrite,
+			zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), h.ZapWrite), // 打印到控制台和文件
+			level,
+		)
+	} else {
+		zapCore = zapcore.NewCore(
+			h.Encoder, // 编码器配置
+			h.ZapWrite,
+			level,
+		)
+	}
+
+	// zapCore := zapcore.NewCore(
+	// 	h.Encoder,
+	// 	h.ZapWrite,
+	// 	level,
+	// )
 
 	h.LogMap[module] = zap.New(zapCore)
 	return h.LogMap[module].Sugar()

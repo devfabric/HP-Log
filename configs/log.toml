@@ -1,4 +1,4 @@
-PrintLog = false
+PrintLog = true
 Loglevel = "info"
 Filename = "logs/HP-Log.log"
 MaxSize = 1024

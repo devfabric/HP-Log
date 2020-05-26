@@ -10,7 +10,7 @@ import (
 )
 
 var HPLogConfig = &LogConfig{
-	PrintLog: false,
+	PrintLog: true,
 	Loglevel: "info", //默认级别
 	// Filename:   filepath.Join(os.TempDir(), "HP-Log.log"),
 	Filename:   filepath.Join("logs", "HP-Log.log"),
@@ -21,7 +21,7 @@ var HPLogConfig = &LogConfig{
 	Compress:   false, // 是否压缩 disabled by default
 	ModLevel: map[string]string{ //每隔模块的级别
 		"main":   "info",
-		"model1": "error",
+		"model1": "debug",
 		"model2": "error",
 	},
 }
