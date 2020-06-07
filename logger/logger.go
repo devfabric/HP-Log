@@ -42,6 +42,33 @@ func TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format(time.RFC3339Nano))
 }
 
+func InitLog() *HPLog {
+	hook := lumberjack.Logger{
+		Filename:   config.HPLogConfig.Filename,   // 日志文件路径
+		MaxSize:    config.HPLogConfig.MaxSize,    // megabytes
+		MaxBackups: config.HPLogConfig.MaxBackups, // 最多保留3个备份
+		MaxAge:     config.HPLogConfig.MaxAge,     //days
+		LocalTime:  config.HPLogConfig.LocalTime,
+		Compress:   config.HPLogConfig.Compress, // 是否压缩 disabled by default
+	}
+
+	encoderConfig := zap.NewProductionEncoderConfig()
+	if hook.LocalTime {
+		encoderConfig.EncodeTime = TimeEncoder //本地定义化时间格式
+	} else {
+		encoderConfig.EncodeTime = zapcore.RFC3339NanoTimeEncoder //ISO8601TimeEncoder
+	}
+
+	hpLog := &HPLog{
+		LogMap: make(map[string]*zap.Logger),
+	}
+
+	hpLog.ZapWrite = zapcore.AddSync(&hook)
+	hpLog.Encoder = zapcore.NewConsoleEncoder(encoderConfig)
+
+	return hpLog
+}
+
 func InitLogger(module string) (*HPLog, *zap.SugaredLogger) {
 	hook := lumberjack.Logger{
 		Filename:   config.HPLogConfig.Filename,   // 日志文件路径
