@@ -47,7 +47,7 @@ func CheckFileIsExist(filename string) bool {
 	return exist
 }
 
-func LoadHPLogConfig(dir string) (*LogConfig, error) {
+func LoadHPLogConfig(dir string, logConfig *LogConfig) (*LogConfig, error) {
 	path := filepath.Join(dir, "./configs/log.toml")
 	filePath, err := filepath.Abs(path)
 	if err != nil {
@@ -63,8 +63,14 @@ func LoadHPLogConfig(dir string) (*LogConfig, error) {
 		}
 	} else {
 		configBuf := new(bytes.Buffer)
-		if err := toml.NewEncoder(configBuf).Encode(HPLogConfig); err != nil {
-			return nil, err
+		if logConfig != nil {
+			if err := toml.NewEncoder(configBuf).Encode(logConfig); err != nil {
+				return nil, err
+			}
+		} else {
+			if err := toml.NewEncoder(configBuf).Encode(HPLogConfig); err != nil {
+				return nil, err
+			}
 		}
 		err := ioutil.WriteFile(filePath, configBuf.Bytes(), 0666)
 		if err != nil {

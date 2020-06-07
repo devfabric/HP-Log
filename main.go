@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	logConfig, err := config.LoadHPLogConfig("./")
+	logConfig, err := config.LoadHPLogConfig("./", nil)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
